@@ -36,6 +36,8 @@ export function RecipeForm({ onClose, onSuccess, initialRecipe }: RecipeFormProp
   });
   
   const [ingredients, setIngredients] = useState(initialRecipe?.ingredients?.length ? initialRecipe.ingredients : ['']);
+  const [tags, setTags] = useState<string[]>(Array.isArray((initialRecipe as any)?.tags) ? (initialRecipe as any).tags : []);
+  const [tagInput, setTagInput] = useState('');
   const [steps, setSteps] = useState(initialRecipe?.steps?.length ? initialRecipe.steps : ['']);
   const [stepItems, setStepItems] = useState<Array<{ text: string; image_url?: string | null }>>(
     initialRecipe?.step_items && initialRecipe.step_items.length
@@ -162,8 +164,11 @@ export function RecipeForm({ onClose, onSuccess, initialRecipe }: RecipeFormProp
         ingredients: ingredients.filter(i => i.trim() !== ''),
         steps: finalStepItems.map((s) => s.text).filter(s => s.trim() !== ''),
         step_items: finalStepItems,
+        tags,
         image_url: imageUrl ?? (initialRecipe?.image_url || null),
         user_id: user.id,
+        author_id: user.id,
+        author_name: (user.user_metadata && (user.user_metadata.username || user.user_metadata.full_name)) || user.email,
       };
       
       let error;
@@ -352,6 +357,53 @@ export function RecipeForm({ onClose, onSuccess, initialRecipe }: RecipeFormProp
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-bold tracking-wide text-black uppercase font-mono">
+                Tags
+              </label>
+            </div>
+            <div className="flex items-center gap-3 mb-3">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                    e.preventDefault();
+                    if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
+                    setTagInput('');
+                  }
+                }}
+                placeholder="Add a tag and press Enter"
+                className="flex-1 px-4 py-2 border border-black focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (tagInput.trim() && !tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
+                  setTagInput('');
+                }}
+                className="px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase font-mono"
+              >
+                Add Tag
+              </button>
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {tags.map((t, i) => (
+                  <span key={i} className="inline-flex items-center gap-2 px-2 py-1 text-xs border border-black uppercase font-mono">
+                    {t}
+                    <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Remove ${t}`}>
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Steps */}

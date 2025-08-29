@@ -26,9 +26,23 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
       )}
       
       <div className="p-6">
-        <h3 className="text-xl font-bold tracking-tight text-black mb-3 uppercase font-mono">
+        <h3 className="text-xl font-bold tracking-tight text-black mb-1 uppercase font-mono">
           {recipe.title}
         </h3>
+        {(recipe.author_name || recipe.author_id) && (
+          <div className="mb-3 text-[11px] uppercase tracking-widest text-black/70 font-mono">
+            by {recipe.author_name || 'Unknown'}
+          </div>
+        )}
+        {Array.isArray(recipe.tags) && recipe.tags.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {recipe.tags.slice(0, 4).map((t, i) => (
+              <span key={i} className="inline-block px-2 py-0.5 text-[10px] border border-black uppercase font-mono tracking-widest">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
         
         {recipe.description && (
           <div 
@@ -41,13 +55,13 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           {totalTime > 0 && (
             <div className="flex items-center space-x-1">
               <Clock className="w-4 h-4" />
-              <span>{totalTime}<sup>ᵐⁱⁿ</sup></span>
+              <span>{totalTime} min</span>
             </div>
           )}
           
           <div className="flex items-center space-x-1">
             <Users className="w-4 h-4" />
-            <span>{recipe.servings}<sup>ˢᵛᵍ</sup></span>
+            <span>{recipe.servings}</span>
           </div>
         </div>
       </div>

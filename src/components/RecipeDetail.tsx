@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Recipe } from '../lib/supabase';
-import { X, Clock, Users, Edit3, Trash2 } from 'lucide-react';
+import { X, Clock, Users, Edit3, Trash2, Download } from 'lucide-react';
+// @ts-ignore - html2pdf has no types
+import html2pdf from 'html2pdf.js';
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -11,29 +13,51 @@ interface RecipeDetailProps {
 
 export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetailProps) {
   const totalTime = recipe.prep_time + recipe.cook_time;
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!printRef.current) return;
+    const element = printRef.current;
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `${recipe.title.replace(/\s+/g, '_')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    } as any;
+    await html2pdf().set(opt).from(element).save();
+  };
 
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
-      <div className="max-w-4xl mx-auto px-8 py-12">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-5xl mx-auto px-6 md:px-8 py-6 md:py-10">
+        <div className="sticky top-0 z-10 -mx-6 md:-mx-8 px-6 md:px-8 py-4 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-black/10 flex items-center justify-between">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 transition-colors"
+            className="p-2 hover:bg-black hover:text-white transition-colors border border-black text-black"
+            aria-label="Close"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
-          
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={handleExportPdf}
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export</span>
+            </button>
             <button
               onClick={onEdit}
-              className="flex items-center space-x-2 px-4 py-2 text-sm font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
+              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
             >
               <Edit3 className="w-4 h-4" />
               <span>Edit</span>
             </button>
             <button
               onClick={onDelete}
-              className="flex items-center space-x-2 px-4 py-2 text-sm font-bold tracking-wide text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-colors uppercase"
+              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors uppercase"
             >
               <Trash2 className="w-4 h-4" />
               <span>Delete</span>
@@ -41,55 +65,67 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetail
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div ref={printRef} className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12">
           {/* Image */}
           {recipe.image_url && (
-            <div className="aspect-square">
-              <img 
-                src={recipe.image_url} 
-                alt={recipe.title}
-                className="w-full h-full object-cover border border-black"
-              />
-            </div>
+            <figure className="lg:col-span-5">
+              <div className="aspect-square border border-black">
+                <img 
+                  src={recipe.image_url} 
+                  alt={recipe.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </figure>
           )}
           
           {/* Recipe Info */}
-          <div className={recipe.image_url ? '' : 'lg:col-span-2'}>
-            <h1 className="text-4xl font-bold tracking-tight text-black mb-6 uppercase font-mono">
+          <div className={recipe.image_url ? 'lg:col-span-7' : 'lg:col-span-12'}>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-black mb-2 md:mb-3 uppercase font-mono">
               {recipe.title}
             </h1>
-            
+            {(recipe.author_name || recipe.author_id) && (
+              <div className="mb-4 text-[11px] uppercase tracking-widest text-black/70 font-mono">
+                by {recipe.author_name || 'Unknown'}
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-4 text-xs font-mono uppercase tracking-wide text-black/70 mb-6">
+              <div className="inline-flex items-center gap-2"><Clock className="w-4 h-4" /> {totalTime} min total</div>
+              <span className="hidden sm:inline-block w-px h-4 bg-black/20" />
+              <div className="inline-flex items-center gap-2"><Users className="w-4 h-4" /> Serves {recipe.servings}</div>
+            </div>
+
             {recipe.description && (
               <div 
-                className="text-lg text-gray-700 mb-8 leading-relaxed prose prose-lg max-w-none [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-2"
+                className="text-base md:text-lg text-gray-800 mb-8 leading-relaxed prose prose-lg max-w-none [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-2"
                 dangerouslySetInnerHTML={{ __html: recipe.description }}
               />
             )}
             
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 mb-12 pb-8 border-b border-black">
+            <div className="grid grid-cols-3 gap-0 mb-12 pb-8 border-b border-black/20">
               <div className="text-center">
                 <div className="text-2xl font-bold text-black mb-1 font-mono">{recipe.prep_time} min</div>
-                <div className="text-xs font-bold tracking-wide text-black uppercase font-mono">Prep</div>
+                <div className="text-[11px] font-bold tracking-wide text-black uppercase font-mono">Prep</div>
               </div>
-              <div className="text-center">
+              <div className="text-center border-l border-r border-black/20 px-2">
                 <div className="text-2xl font-bold text-black mb-1 font-mono">{recipe.cook_time} min</div>
-                <div className="text-xs font-bold tracking-wide text-black uppercase font-mono">Cook</div>
+                <div className="text-[11px] font-bold tracking-wide text-black uppercase font-mono">Cook</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-black mb-1 font-mono">{recipe.servings}</div>
-                <div className="text-xs font-bold tracking-wide text-black uppercase font-mono">Servings</div>
+                <div className="text-[11px] font-bold tracking-wide text-black uppercase font-mono">Servings</div>
               </div>
             </div>
             
             {/* Ingredients */}
             <div className="mb-12">
-              <h2 className="text-xl font-bold tracking-tight text-black mb-6 uppercase font-mono">Ingredients</h2>
-              <ul className="space-y-3">
+              <h2 className="text-sm font-bold tracking-widest text-black mb-4 uppercase font-mono">Ingredients</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="flex items-center space-x-3">
-                    <span className="w-2 h-2 bg-black"></span>
-                    <span className="text-gray-700">{ingredient}</span>
+                  <li key={index} className="flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-black"></span>
+                    <span className="text-gray-800">{ingredient}</span>
                   </li>
                 ))}
               </ul>
@@ -97,20 +133,20 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetail
             
             {/* Steps */}
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-black mb-6 uppercase font-mono">Instructions</h2>
-              <ol className="space-y-6">
+              <h2 className="text-sm font-bold tracking-widest text-black mb-4 uppercase font-mono">Instructions</h2>
+              <ol className="space-y-8">
                 {(recipe.step_items && recipe.step_items.length ? recipe.step_items.map((item) => item.text) : recipe.steps).map((_, index) => (
-                  <li key={index} className="flex items-start space-x-4">
-                    <span className="text-lg font-bold text-black min-w-[2rem] mt-1 font-mono">
-                      {index + 1}.
-                    </span>
+                  <li key={index} className="grid grid-cols-[auto,1fr] gap-4">
+                    <div className="pt-0.5">
+                      <div className="w-8 h-8 border border-black rounded-full flex items-center justify-center font-mono text-sm font-bold">{index + 1}</div>
+                    </div>
                     <div className="space-y-3">
-                      <p className="text-gray-700 leading-relaxed">{recipe.step_items && recipe.step_items[index] ? recipe.step_items[index].text : recipe.steps[index]}</p>
+                      <p className="text-gray-800 leading-relaxed">{recipe.step_items && recipe.step_items[index] ? recipe.step_items[index].text : recipe.steps[index]}</p>
                       {recipe.step_items && recipe.step_items[index]?.image_url && (
                         <img
                           src={recipe.step_items[index]?.image_url as string}
                           alt={`Step ${index + 1}`}
-                          className="w-full max-w-md border border-black"
+                          className="w-full max-w-lg border border-black"
                         />
                       )}
                     </div>

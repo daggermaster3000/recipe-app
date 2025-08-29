@@ -12,11 +12,14 @@ export type Recipe = {
   ingredients: string[];
   steps: string[];
   step_items?: Array<{ text: string; image_url?: string | null }>; // optional rich steps
+  tags?: string[];
   image_url: string | null;
   prep_time: number;
   cook_time: number;
   servings: number;
   user_id: string;
+  author_id?: string | null;
+  author_name?: string | null;
   created_at: string;
   updated_at: string;
 };

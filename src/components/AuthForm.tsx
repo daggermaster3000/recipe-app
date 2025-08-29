@@ -5,6 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 export function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ export function AuthForm() {
     try {
       const { error } = isLogin 
         ? await signIn(email, password)
-        : await signUp(email, password);
+        : await signUp(email, password, username);
         
       if (error) throw error;
     } catch (err: any) {
@@ -45,9 +46,24 @@ export function AuthForm() {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-8">
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-bold tracking-wide text-black uppercase mb-2 font-mono">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required={!isLogin}
+                  className="w-full px-4 py-3 border border-black focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-black placeholder-gray-500 bg-white"
+                  placeholder="Choose a username"
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-bold tracking-wide text-black uppercase mb-2 font-mono">
-                Email<sup>⁰¹</sup>
+                Email
               </label>
               <input
                 type="email"
@@ -61,7 +77,7 @@ export function AuthForm() {
             
             <div>
               <label className="block text-sm font-bold tracking-wide text-black uppercase mb-2 font-mono">
-                Password<sup>⁰²</sup>
+                Password
               </label>
               <div className="relative">
                 <input

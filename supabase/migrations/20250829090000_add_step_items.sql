@@ -4,3 +4,4 @@ ADD COLUMN IF NOT EXISTS step_items jsonb DEFAULT '[]'::jsonb;
 
 -- Note: keep legacy text[] `steps` for backward compatibility
 
+
