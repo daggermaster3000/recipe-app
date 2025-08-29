@@ -1,0 +1,56 @@
+import React from 'react';
+import { Recipe } from '../lib/supabase';
+import { Clock, Users } from 'lucide-react';
+
+interface RecipeCardProps {
+  recipe: Recipe;
+  onClick: () => void;
+}
+
+export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
+  const totalTime = recipe.prep_time + recipe.cook_time;
+
+  return (
+    <div 
+      onClick={onClick}
+      className="border border-black cursor-pointer hover:bg-gray-50 transition-colors duration-200 group"
+    >
+      {recipe.image_url && (
+        <div className="aspect-square overflow-hidden">
+          <img 
+            src={recipe.image_url} 
+            alt={recipe.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+      )}
+      
+      <div className="p-6">
+        <h3 className="text-xl font-bold tracking-tight text-black mb-3 uppercase font-mono">
+          {recipe.title}
+        </h3>
+        
+        {recipe.description && (
+          <div 
+            className="text-sm text-gray-700 mb-4 leading-relaxed prose prose-sm max-w-none [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1"
+            dangerouslySetInnerHTML={{ __html: recipe.description }}
+          />
+        )}
+        
+        <div className="flex items-center justify-between text-xs font-medium tracking-wide text-black uppercase font-mono">
+          {totalTime > 0 && (
+            <div className="flex items-center space-x-1">
+              <Clock className="w-4 h-4" />
+              <span>{totalTime}<sup>ᵐⁱⁿ</sup></span>
+            </div>
+          )}
+          
+          <div className="flex items-center space-x-1">
+            <Users className="w-4 h-4" />
+            <span>{recipe.servings}<sup>ˢᵛᵍ</sup></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
