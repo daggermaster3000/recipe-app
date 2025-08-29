@@ -71,15 +71,15 @@ export function RecipesDashboard() {
 
   return (
     <>
-      <div className="mb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="mb-8 md:mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
           <h1 className="text-4xl font-bold tracking-tight text-black uppercase font-mono">
             Your Recipes
           </h1>
           
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center space-x-3 px-6 py-3 bg-black text-white font-bold tracking-wide hover:bg-gray-900 transition-colors uppercase font-mono"
+            className="flex items-center space-x-3 px-4 py-2 md:px-6 md:py-3 bg-black text-white font-bold tracking-wide hover:bg-gray-900 transition-colors uppercase font-mono"
           >
             <Plus className="w-5 h-5" />
             <span>Add Recipe</span>
@@ -87,7 +87,7 @@ export function RecipesDashboard() {
         </div>
         
         {/* Search */}
-        <div className="mt-8 relative max-w-md">
+        <div className="mt-4 md:mt-8 relative max-w-md">
           <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -121,7 +121,7 @@ export function RecipesDashboard() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredRecipes.map((recipe) => (
             <RecipeCard
               key={recipe.id}

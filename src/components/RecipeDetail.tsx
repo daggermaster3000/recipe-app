@@ -9,9 +9,10 @@ interface RecipeDetailProps {
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  readOnly?: boolean;
 }
 
-export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetailProps) {
+export function RecipeDetail({ recipe, onClose, onEdit, onDelete, readOnly }: RecipeDetailProps) {
   const totalTime = recipe.prep_time + recipe.cook_time;
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +33,7 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetail
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       <div className="max-w-5xl mx-auto px-6 md:px-8 py-6 md:py-10">
-        <div className="sticky top-0 z-10 -mx-6 md:-mx-8 px-6 md:px-8 py-4 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-black/10 flex items-center justify-between">
+        <div className="sticky top-0 z-10 -mx-6 md:-mx-8 px-6 md:px-8 py-4 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex items-center justify-between">
           <button
             onClick={onClose}
             className="p-2 hover:bg-black hover:text-white transition-colors border border-black text-black"
@@ -48,20 +49,24 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete }: RecipeDetail
               <Download className="w-4 h-4" />
               <span>Export</span>
             </button>
-            <button
-              onClick={onEdit}
-              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Edit</span>
-            </button>
-            <button
-              onClick={onDelete}
-              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors uppercase"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete</span>
-            </button>
+            {!readOnly && (
+              <>
+                <button
+                  onClick={onEdit}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors uppercase"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 

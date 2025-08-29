@@ -16,7 +16,7 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
       className="border border-black cursor-pointer hover:bg-gray-50 transition-colors duration-200 group"
     >
       {recipe.image_url && (
-        <div className="aspect-square overflow-hidden">
+        <div className="aspect-[4/3] sm:aspect-square overflow-hidden">
           <img 
             src={recipe.image_url} 
             alt={recipe.title}

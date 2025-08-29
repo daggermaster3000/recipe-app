@@ -32,9 +32,9 @@ export function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-8">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 md:px-8">
       <div className="w-full max-w-md">
-        <div className="border border-black p-12">
+        <div className="border border-black p-6 md:p-12">
           <h1 className="text-3xl font-bold tracking-tight text-black mb-12 text-center font-mono">
             {isLogin ? 'SIGN IN' : 'SIGN UP'}<sup className="text-lg">⁰¹</sup>
           </h1>
@@ -45,7 +45,7 @@ export function AuthForm() {
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
             {!isLogin && (
               <div>
                 <label className="block text-sm font-bold tracking-wide text-black uppercase mb-2 font-mono">
@@ -101,7 +101,7 @@ export function AuthForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-black text-white font-bold tracking-wide uppercase hover:bg-gray-900 disabled:opacity-50 transition-colors duration-200 font-mono"
+              className="w-full py-3 md:py-4 bg-black text-white font-bold tracking-wide uppercase hover:bg-gray-900 disabled:opacity-50 transition-colors duration-200 font-mono"
             >
               {loading ? 'PROCESSING...' : (isLogin ? 'SIGN IN' : 'SIGN UP')}
             </button>
