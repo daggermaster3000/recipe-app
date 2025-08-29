@@ -17,18 +17,38 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete, readOnly }: Re
   const printRef = useRef<HTMLDivElement>(null);
 
   const handleExportPdf = async () => {
-    if (!printRef.current) return;
-    const element = printRef.current;
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: `${recipe.title.replace(/\s+/g, '_')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    } as any;
-    await html2pdf().set(opt).from(element).save();
-  };
+  if (!printRef.current) return;
+  const element = printRef.current;
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `${recipe.title.replace(/\s+/g, '_')}.pdf`,
+    image: { type: 'jpeg', quality: 1 }, // keep image crisp
+    html2canvas: {
+      scale: 4, // higher scale -> sharper images
+      useCORS: true, // load external images properly
+      logging: false, // suppress console noise
+      letterRendering: true, // improves text/image rendering
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+  } as any;
+
+  // Ensure images inside the element are fully loaded
+  const imgs = element.querySelectorAll('img');
+  await Promise.all(
+    Array.from(imgs).map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) resolve();
+          else img.onload = () => resolve();
+        })
+    )
+  );
+
+  await html2pdf().set(opt).from(element).save();
+};
+
 
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
@@ -44,7 +64,7 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete, readOnly }: Re
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={handleExportPdf}
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
+              className="sm:inline-flex items-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-black border border-black hover:bg-black hover:text-white transition-colors uppercase"
             >
               <Download className="w-4 h-4" />
               <span>Export</span>
@@ -70,7 +90,7 @@ export function RecipeDetail({ recipe, onClose, onEdit, onDelete, readOnly }: Re
           </div>
         </div>
 
-        <div ref={printRef} className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12">
+        <div ref={printRef} className=" print-container grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12">
           {/* Image */}
           {recipe.image_url && (
             <figure className="lg:col-span-5">
